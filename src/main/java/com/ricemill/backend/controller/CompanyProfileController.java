@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/company-profile")
-@CrossOrigin(origins = "*")
+
 public class CompanyProfileController {
 
     @Autowired
