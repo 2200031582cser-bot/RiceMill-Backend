@@ -13,7 +13,7 @@ import com.ricemill.backend.repository.LedgerTransactionRepository;
 import java.util.List;
 
 @RestController
-@CrossOrigin("*")
+
 @RequestMapping("/ledger")
 public class CustomerLedgerController {
 
