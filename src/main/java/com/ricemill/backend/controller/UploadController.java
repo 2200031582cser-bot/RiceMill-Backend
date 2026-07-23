@@ -13,7 +13,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/upload")
-@CrossOrigin(origins = "*")
 public class UploadController {
 
     @Value("${company.upload.path}")
