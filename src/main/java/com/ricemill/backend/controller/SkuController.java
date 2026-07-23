@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sku")
-@CrossOrigin(origins = "*")
+
 public class SkuController {
 
     @Autowired
