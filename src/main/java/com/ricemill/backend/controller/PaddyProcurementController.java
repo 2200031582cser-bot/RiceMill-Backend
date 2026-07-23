@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/paddy")
-@CrossOrigin("*")
+
 public class PaddyProcurementController {
 
     @Autowired
