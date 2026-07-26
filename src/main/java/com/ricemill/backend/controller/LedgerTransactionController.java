@@ -29,4 +29,11 @@ public class LedgerTransactionController {
     ) {
         return repository.findByLedgerId(ledgerId);
     }
+
+    @GetMapping("/user/{userId}")
+public List<LedgerTransaction> getByUserId(
+        @PathVariable Long userId
+) {
+    return repository.findByUserId(userId);
+}
 }
