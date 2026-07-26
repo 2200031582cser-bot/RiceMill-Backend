@@ -75,94 +75,77 @@ public class CustomerLedgerController {
         return repository.save(ledger);
     }
 
-    @PutMapping(
-            "/receive-payment/{id}"
-    )
-    public CustomerLedger receivePayment(
+    @PutMapping("/receive-payment/{id}")
+public CustomerLedger receivePayment(
+        @PathVariable Long id,
+        @RequestBody PaymentRequest request
+) {
 
-            @PathVariable Long id,
+    CustomerLedger ledger =
+            repository.findById(id)
+                    .orElseThrow();
 
-            @RequestBody
-            PaymentRequest request
+    Double amount = request.getPaymentAmount();
 
-    ) {
-
-        CustomerLedger ledger =
-                repository.findById(id)
-                        .orElseThrow();
-
-        Double amount =
-                request.getPaymentAmount();
-
-        Double newDue =
-                ledger.getDueAmount()
-                        -
-                        amount;
-
-        ledger.setAmountReceived(
-
-                ledger.getAmountReceived()
-                        +
-                        amount
-
+    if (amount == null || amount <= 0) {
+        throw new IllegalArgumentException(
+                "Payment amount must be greater than zero"
         );
-
-        ledger.setDueAmount(
-                newDue
-        );
-
-        if(newDue <= 0){
-
-            ledger.setStatus(
-                    "CLEARED"
-            );
-
-            ledger.setDueAmount(
-                    0.0
-            );
-        }
-
-        CustomerLedger saved =
-                repository.save(
-                        ledger
-                );
-
-        LedgerTransaction txn =
-                new LedgerTransaction();
-
-        txn.setUserId(
-                ledger.getUserId()
-        );
-
-        txn.setLedgerId(
-                ledger.getId()
-        );
-
-        txn.setTransactionDate(
-                java.time.LocalDate.now()
-                        .toString()
-        );
-
-        txn.setParticulars(
-                "Payment Received"
-        );
-
-        txn.setDebitAmount(
-                0.0
-        );
-
-        txn.setCreditAmount(
-                amount
-        );
-
-        txn.setBalanceAmount(
-                saved.getDueAmount()
-        );
-
-        transactionRepository.save(
-                txn
-        );
-
-        return saved;
     }
+
+    Double currentDue =
+            ledger.getDueAmount() == null
+                    ? 0.0
+                    : ledger.getDueAmount();
+
+    if (amount > currentDue) {
+        throw new IllegalArgumentException(
+                "Payment cannot exceed outstanding amount of ₹"
+                        + currentDue
+        );
+    }
+
+    Double currentReceived =
+            ledger.getAmountReceived() == null
+                    ? 0.0
+                    : ledger.getAmountReceived();
+
+    Double newReceived =
+            currentReceived + amount;
+
+    Double newDue =
+            currentDue - amount;
+
+    ledger.setAmountReceived(newReceived);
+    ledger.setDueAmount(newDue);
+
+    if (newDue <= 0) {
+        ledger.setDueAmount(0.0);
+        ledger.setStatus("CLEARED");
+    } else {
+        ledger.setStatus("PENDING");
+    }
+
+    CustomerLedger saved =
+            repository.save(ledger);
+
+    LedgerTransaction txn =
+            new LedgerTransaction();
+
+    txn.setUserId(ledger.getUserId());
+    txn.setLedgerId(ledger.getId());
+
+    txn.setTransactionDate(
+            java.time.LocalDate.now().toString()
+    );
+
+    txn.setParticulars("Payment Received");
+    txn.setDebitAmount(0.0);
+    txn.setCreditAmount(amount);
+    txn.setBalanceAmount(saved.getDueAmount());
+
+    transactionRepository.save(txn);
+
+    return saved;
+}
 }
