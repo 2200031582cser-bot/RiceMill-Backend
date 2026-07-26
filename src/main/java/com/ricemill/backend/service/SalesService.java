@@ -187,7 +187,7 @@ public class SalesService {
             );
 
             transaction.setBalanceAmount(
-                    dueAmount
+                    savedLedger.getDueAmount()
             );
 
             ledgerTransactionRepository.save(
