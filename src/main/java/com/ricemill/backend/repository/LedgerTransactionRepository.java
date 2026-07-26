@@ -10,4 +10,5 @@ public interface LedgerTransactionRepository
 
     List<LedgerTransaction> findByLedgerId(Long ledgerId);
 
+    List<LedgerTransaction> findByUserId(Long userId);
 }
